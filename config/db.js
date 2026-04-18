@@ -1,20 +1,27 @@
-const Database = require('better-sqlite3');
+const { Pool } = require('pg');
 
-const db = new Database(process.env.DB_PATH || './profiles.db');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS profiles (
-    id TEXT PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    gender TEXT,
-    gender_probability REAL,
-    sample_size INTEGER,
-    age INTEGER,
-    age_group TEXT,
-    country_id TEXT,
-    country_probability REAL,
-    created_at TEXT NOT NULL
-  )
-`);
+const init = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS profiles (
+      id TEXT PRIMARY KEY,
+      name TEXT UNIQUE NOT NULL,
+      gender TEXT,
+      gender_probability REAL,
+      sample_size INTEGER,
+      age INTEGER,
+      age_group TEXT,
+      country_id TEXT,
+      country_probability REAL,
+      created_at TEXT NOT NULL
+    )
+  `);
+};
 
-module.exports = db;
+init();
+
+module.exports = pool;
